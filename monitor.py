@@ -21,6 +21,7 @@ TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 STATE_FILE = "state.txt"
 
 CLOSED_KEYWORDS = [
+    "no hay horas disponibles",
     "no hay citas disponibles",
     "no existen citas disponibles",
     "servicio no disponible",
