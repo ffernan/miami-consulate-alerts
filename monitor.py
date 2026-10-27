@@ -162,6 +162,8 @@ def main() -> None:
             ),
         )
         page = context.new_page()
+            page.on("dialog", lambda dialog: dialog.accept())
+            print("[Monitor] Automatic acceptance enabled for browser popups.")
 
         try:
             print("[Monitor] Cargando la página...")
