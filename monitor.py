@@ -96,79 +96,29 @@ def git_commit_state() -> None:
         print(f"[Git] Error al hacer commit/push: {exc}")
 
 
+
 # ── Detección del estado ───────────────────────────────────────
 def detect_state(page) -> str:
     """
-    Detecta el estado del formulario usando múltiples métodos en cascada:
-    1. Keywords de cierre en el texto visible
-    2. Botón 'Continuar' habilitado/deshabilitado
-    3. Botones de tipo submit
-    4. Campos de formulario activos
+    Detecta el estado sin asumir que un formulario habilitado
+    significa que hay citas disponibles.
     """
     try:
-        body_text = page.inner_text("body").lower()
-    except Exception:
-        body_text = ""
+        body_text = page.locator("body").inner_text(timeout=10000).lower()
+    except Exception as exc:
+        print(f"[Detección] No se pudo leer el texto de la página: {exc}")
+        return "unknown"
 
-    # ── Método 1: Keywords de cierre ───────────────────────────
+    # Señal conocida: no hay horas disponibles
     for keyword in CLOSED_KEYWORDS:
-        if keyword in body_text:
-            print(f'[Detección] Keyword encontrada: "{keyword}"')
+        if keyword.lower() in body_text:
+            print(f'[Detección] Sin disponibilidad: "{keyword}"')
             return "disabled"
 
-    # ── Método 2: Botón "Continuar" ───────────────────────────
-    try:
-        continuar_btns = page.query_selector_all(
-            'button:has-text("Continuar"), '
-            'input[type="submit"][value*="ontinuar"], '
-            'a:has-text("Continuar")'
-        )
-        for btn in continuar_btns:
-            is_disabled = btn.get_attribute("disabled") is not None
-            aria_disabled = btn.get_attribute("aria-disabled")
-            classes = btn.get_attribute("class") or ""
-            if is_disabled or aria_disabled == "true" or "disabled" in classes:
-                print('[Detección] Botón "Continuar" encontrado pero DESHABILITADO.')
-                return "disabled"
-            else:
-                print('[Detección] Botón "Continuar" encontrado y HABILITADO.')
-                return "active"
-    except Exception as exc:
-        print(f"[Detección] Error buscando botón Continuar: {exc}")
-
-    # ── Método 3: Botones submit ──────────────────────────────
-    try:
-        submits = page.query_selector_all(
-            'button[type="submit"], input[type="submit"]'
-        )
-        enabled_submits = []
-        for s in submits:
-            if s.get_attribute("disabled") is None:
-                enabled_submits.append(s)
-        if enabled_submits:
-            print(
-                f"[Detección] {len(enabled_submits)} botón(es) submit habilitado(s)."
-            )
-            return "active"
-    except Exception as exc:
-        print(f"[Detección] Error buscando botones submit: {exc}")
-
-    # ── Método 4: Campos de formulario activos ─────────────────
-    try:
-        fields = page.query_selector_all(
-            "input:not([type=hidden]):not([disabled]), "
-            "select:not([disabled]), "
-            "textarea:not([disabled])"
-        )
-        active_fields = len(fields)
-        print(f"[Detección] {active_fields} campo(s) de formulario activo(s).")
-        if active_fields >= 2:
-            return "active"
-    except Exception as exc:
-        print(f"[Detección] Error contando campos de formulario: {exc}")
-
+    # No conocemos todavía el aspecto exacto de la pantalla
+    # que aparece cuando sí hay citas disponibles.
+    print("[Detección] Resultado no confirmado; no enviar alerta de disponibilidad.")
     return "unknown"
-
 
 # ── Notificaciones ─────────────────────────────────────────────
 def notify_active() -> None:
