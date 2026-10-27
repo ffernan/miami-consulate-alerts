@@ -172,6 +172,19 @@ def main() -> None:
             # Esperar a que el widget Angular cargue completamente
             page.wait_for_timeout(5000)
 
+            print("[Debug] Page title:", page.title())
+            print("[Debug] Main page text:")
+            print(page.locator("body").inner_text(timeout=10000)[:3000])
+
+            print("[Debug] Frames found:")
+            for frame in page.frames:
+                print("[Debug] Frame URL:", frame.url)
+                try:
+                    print("[Debug] Frame text:")
+                    print(frame.locator("body").inner_text(timeout=5000)[:1500])
+                except Exception as exc:
+                    print("[Debug] Could not read frame:", exc)
+
             print("[Monitor] Página cargada. Analizando estado...")
             current_state = detect_state(page)
 
