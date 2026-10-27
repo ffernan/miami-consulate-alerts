@@ -161,7 +161,8 @@ def main() -> None:
                 "Chrome/125.0.0.0 Safari/537.36"
             ),
         )
-        page = context.new_page()
+            page = context.new_page()
+        
             page.on("dialog", lambda dialog: dialog.accept())
             print("[Monitor] Automatic acceptance enabled for browser popups.")
 
