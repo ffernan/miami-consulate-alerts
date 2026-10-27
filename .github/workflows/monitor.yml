@@ -1,10 +1,7 @@
 name: Monitor Cita Embajada España
 
 on:
-  schedule:
-    - cron: '*/2 * * * *'   # Cada 2 minutos (GitHub mín ~5 min real)
-  workflow_dispatch:          # Ejecutar manualmente desde GitHub
-
+  workflow_dispatch: # Ejecutar manualmente desde GitHub
 jobs:
   monitor:
     runs-on: ubuntu-latest
